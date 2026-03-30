@@ -1,2 +1,3 @@
 sql_practise.ipynb
 *.json
+.env
