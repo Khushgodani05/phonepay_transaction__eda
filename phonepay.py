@@ -12,6 +12,10 @@ import seaborn as sns
 from sqlalchemy import create_engine
 import warnings
 warnings.filterwarnings('ignore')
+import os
+from urllib.parse import quote_plus
+from dotenv import load_dotenv
+load_dotenv()
 
 # ─────────────────────────────────────────────
 # PAGE CONFIG
@@ -256,10 +260,12 @@ set_plot_style()
 # ─────────────────────────────────────────────
 # DATA LOADING
 # ─────────────────────────────────────────────
+raw_password = os.getenv("password")
+password=quote_plus(raw_password)
 @st.cache_data
 def load_data():
     try:
-        engine = create_engine("mysql+pymysql://root:Khush%40123@127.0.0.1:3306/phonepay")
+        engine = create_engine(f"mysql+pymysql://root:{password}@127.0.0.1:3306/phonepay")
         with engine.connect() as conn:
             df_ins  = pd.read_sql("SELECT * FROM aggregate_insurance",   conn)
             df_txn  = pd.read_sql("SELECT * FROM aggregate_transaction", conn)
