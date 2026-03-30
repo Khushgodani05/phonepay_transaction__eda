@@ -744,8 +744,11 @@ elif "Users" in page:
     col3, col4 = st.columns(2)
     with col3:
         st.markdown("**User Count vs App Opens (Regression)**")
-        df_users_num = df_users_clean.dropna(subset=['appopen','usersbydevicecount']).sample(
-            min(2000, len(df_users_clean)), random_state=42)
+        df_users_num = df_users_clean.dropna(subset=['appopen','usersbydevicecount']).copy()
+        df_users_num['usersbydevicecount'] = pd.to_numeric(df_users_num['usersbydevicecount'], errors='coerce')
+        df_users_num['appopen'] = pd.to_numeric(df_users_num['appopen'], errors='coerce')
+        df_users_num = df_users_num.dropna(subset=['appopen','usersbydevicecount']).sample(
+            min(2000, len(df_users_num)), random_state=42)
         fig, ax = plt.subplots(figsize=(7, 4))
         sns.regplot(data=df_users_num, x='usersbydevicecount', y='appopen',
                     scatter_kws={'alpha': 0.3, 's': 15, 'color': PHONEPE_PURPLE},
@@ -1011,8 +1014,9 @@ elif "Correlation" in page:
     st.markdown("**Device Count vs App Opens — Multi-segment Scatter**")
     top5b = (df_users_clean.groupby('usersbydevicebrand')['usersbydevicecount']
              .sum().sort_values(ascending=False).head(5).index)
-    seg_data = df_users_clean[df_users_clean['usersbydevicebrand'].isin(top5b)].sample(
-        min(3000, len(df_users_clean)), random_state=42)
+    seg_filtered = df_users_clean[df_users_clean['usersbydevicebrand'].isin(top5b)]
+    seg_data = seg_filtered.sample(
+        min(3000, len(seg_filtered)), random_state=42)
     fig, ax = plt.subplots(figsize=(12, 5))
     pal5 = sns.color_palette('tab10', 5)
     for i, brand in enumerate(top5b):
